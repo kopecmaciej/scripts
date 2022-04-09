@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+### Run this script on qemu virtual machine to create shared folder 
+
+vm_path=/home/$USER/Public/vm-share
+
+mkdir $vm_path
+
+mount -t 9p -o trans=virtio,version=9p2000.L /vm-share $vm_path
+
+exit 0
