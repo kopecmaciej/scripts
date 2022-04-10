@@ -15,6 +15,12 @@ mongod_ips_array=($mongod_ips)
 for ip in "${mongod_ips_array[@]}"; do
 
 	version=$(mongo "$ip" --eval "print(db.version())" --quiet)
+    featureCompatibilityVersion=$(mongo "$ip" --eval "print(db.adminCommand({ getParameter: 1, featureCompatibilityVersion: 1  }))" --quiet)
+
+    if [ "$featureCompatibilityVersion" != *"$upgraded_version"* ]
+    then
+        echo "Upgrade FeatureCompatibilityVersion on PRIMARY instance"
+    fi
 
 	if [ $version != $upgraded_version ]
 	then 
