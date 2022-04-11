@@ -14,4 +14,4 @@ mongod --port 27017 --dbpath /data/db1 --replSet rs0 --fork --logpath /data/log/
 mongod --port 27018 --dbpath /data/db2 --replSet rs0 --fork --logpath /data/log/db/mongod2.log
 mongod --port 27019 --dbpath /data/db3 --replSet rs0 --fork --logpath /data/log/db/mongod3.log
 
-mongo port --27017 --eval "printjson(rs.initiate()) ; printjson(rs.add("localhost:27018")) ; printjson(rs.add("localhost:27019"))"
+mongo --port 27017 --eval 'printjson(rs.initiate()) ; printjson(rs.add("localhost:27018")) ; printjson(rs.add("localhost:27019"))'
