@@ -3,7 +3,11 @@
 tabbyVersion=1.0.187
 
 #dnf
-# echo 'defaultyes=True' >> /etc/dnf/dnf.conf
+if cat /etc/dnf/dnf.conf | grep -q "defaultyes=True" ; then
+    echo "defaultyes is already enabled"
+else
+echo 'defaultyes=True' >> /etc/dnf/dnf.conf
+fi
 
 # fish
 if test -f "/usr/bin/fish" ; then
@@ -13,10 +17,13 @@ sudo dnf -y install fish
 sudo chsh -s /usr/bin/fish
 
 #oh-my-fish
-curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish
+curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install
 
 #fisher
 curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
+
+#bass
+fisher install edc/bass
 
 #nvm
 fisher install jorgebucaran/nvm.fish
