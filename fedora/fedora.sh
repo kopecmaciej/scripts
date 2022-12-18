@@ -5,6 +5,8 @@ slackVersion=4.29.149
 sopsVersion=3.7.3
 goVersion=1.19.4
 
+installUtils=true
+
 #dnf
 if cat /etc/dnf/dnf.conf | grep -q "defaultyes=True"; then
     echo "defaultyes is already enabled"
@@ -18,6 +20,13 @@ if test -f "/usr/bin/flatpak"; then
 else
     sudo dnf -y install flatpak
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+fi
+
+if $installUtils; then
+    curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+    chmod +x mkcert-v*-linux-amd64
+    sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+    rm mkcert-v*-linux-amd64
 fi
 
 # fish
@@ -73,6 +82,14 @@ EOF
     sudo yum install -y kubectl
 fi
 
+#k9s
+if test -f "/home/cieju/.local/bin/k9s"; then
+    echo "k9s is already installed"
+else
+    curl -sS https://webinstall.dev/k9s | bash
+    fish -c "source ~/.config/envman/PATH.env"
+fi
+
 #tabby
 if test -f "/usr/bin/tabby"; then
     echo "tabby is already installed"
@@ -80,6 +97,59 @@ else
     wget https://github.com/Eugeny/tabby/releases/download/v1.0.187/tabby-$tabbyVersion-linux-x64.rpm
     sudo rpm -i tabby-$tabbyVersion-linux-x64.rpm
     rm tabby-$tabbyVersion-linux-x64.rpm
+fi
+
+#neovim
+if test -f "/usr/bin/nvim"; then
+    echo "neovim is already installed"
+else
+    sudo dnf -y install neovim
+fi
+
+#go
+if test -e "/usr/local/go/bin"; then
+    echo "go is already installed"
+else
+    wget https://go.dev/dl/go$goVersion.linux-amd64.tar.gz
+    rm -rf /usr/local/go && tar -C /usr/local -xzf go$goVersion.linux-amd64.tar.gz
+    fish -c "fish_add_path /usr/local/go/bin"
+    set -xU GOPATH $HOME/go
+fi
+
+#aws
+if test -e "/usr/local/bin/aws"; then
+    echo "aws is already installed"
+else
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    unzip awscliv2.zip
+    sudo ./aws/install
+    sudo rm -rf awscliv2.zip aws
+fi
+
+#gcloud
+if test -e "/usr/bin/gcloud"; then
+    echo "gcloud is already installed"
+else
+    sudo tee -a /etc/yum.repos.d/google-cloud-sdk.repo <<EOM
+[google-cloud-cli]
+name=Google Cloud CLI
+baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=0
+gpgkey=https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOM
+    sudo dnf -y install libxcrypt-compat.x86_64
+    sudo dnf -y install google-cloud-cli
+fi
+
+#sops
+if test -f "/usr/local/bin/sops"; then
+    echo "sops is already installed"
+else
+    wget https://github.com/mozilla/sops/releases/download/v$sopsVersion/sops-$sopsVersion-1.x86_64.rpm
+    sudo rpm -i sops-$sopsVersion-1.x86_64.rpm
+    rm sops-$sopsVersion-1.x86_64.rpm
 fi
 
 ### Browsers
@@ -104,16 +174,7 @@ else
     rm slack-$slackVersion-0.1.el8.x86_64.rpm
 fi
 
-#sops
-if test -f "/usr/local/bin/sops"; then
-    echo "sops is already installed"
-else
-    wget https://github.com/mozilla/sops/releases/download/v$sopsVersion/sops-$sopsVersion-1.x86_64.rpm
-    sudo rpm -i sops-$sopsVersion-1.x86_64.rpm
-    rm sops-$sopsVersion-1.x86_64.rpm
-fi
-
-#check if droid sans mono nerd font is installed
+#droid sans mono nerd font
 if test -e "/usr/share/fonts/droid-sans-mono-nerd-font"; then
     echo "droid sans mono nerd font is already installed"
 else
@@ -123,16 +184,6 @@ else
     sudo mv DroidSansMono/* /usr/share/fonts/droid-sans-mono-nerd-font
     fc-cache -f
     rm -rf DroidSansMono.zip DroidSansMono
-fi
-
-#go
-if test -e "/usr/local/go/bin"; then
-    echo "go is already installed"
-else
-    wget https://go.dev/dl/go$goVersion.linux-amd64.tar.gz
-    rm -rf /usr/local/go && tar -C /usr/local -xzf go$goVersion.linux-amd64.tar.gz
-    fish -c "fish_add_path /usr/local/go/bin"
-    set -xU GOPATH $HOME/go
 fi
 
 flatpakDir=/var/lib/flatpak/exports/share/applications
