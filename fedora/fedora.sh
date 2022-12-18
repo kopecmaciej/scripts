@@ -3,12 +3,21 @@
 tabbyVersion=1.0.187
 slackVersion=4.29.149
 sopsVersion=3.7.3
+goVersion=1.19.4
 
 #dnf
 if cat /etc/dnf/dnf.conf | grep -q "defaultyes=True"; then
     echo "defaultyes is already enabled"
 else
     echo 'defaultyes=True' >>/etc/dnf/dnf.conf
+fi
+
+#flatpak
+if test -f "/usr/bin/flatpak"; then
+    echo "flatpak is already installed"
+else
+    sudo dnf -y install flatpak
+    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
 
 # fish
@@ -90,6 +99,7 @@ if test -f "/usr/bin/slack"; then
     echo "slack is already installed"
 else
     wget https://downloads.slack-edge.com/releases/linux/$slackVersion/prod/x64/slack-$slackVersion-0.1.el8.x86_64.rpm
+    sudo dnf -y install libappindicator-gtk3
     sudo rpm -i slack-$slackVersion-0.1.el8.x86_64.rpm
     rm slack-$slackVersion-0.1.el8.x86_64.rpm
 fi
@@ -113,4 +123,30 @@ else
     sudo mv DroidSansMono/* /usr/share/fonts/droid-sans-mono-nerd-font
     fc-cache -f
     rm -rf DroidSansMono.zip DroidSansMono
+fi
+
+#go
+if test -e "/usr/local/go/bin"; then
+    echo "go is already installed"
+else
+    wget https://go.dev/dl/go$goVersion.linux-amd64.tar.gz
+    rm -rf /usr/local/go && tar -C /usr/local -xzf go$goVersion.linux-amd64.tar.gz
+    fish -c "fish_add_path /usr/local/go/bin"
+    set -xU GOPATH $HOME/go
+fi
+
+flatpakDir=/var/lib/flatpak/exports/share/applications
+
+#discord
+if ls $flatpakDir | grep -q "discord"; then
+    echo "discord is already installed"
+else
+    flatpak install discord
+fi
+
+#spotify
+if ls $flatpakDir | grep -q "spotify"; then
+    echo "spotify is already installed"
+else
+    sudo flatpak install flathub com.spotify.Client
 fi
