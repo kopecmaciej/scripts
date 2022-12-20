@@ -22,7 +22,7 @@ else
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
 
-if $installUtils; then
+if test -f /urs/local/bin/mkcer; then
     curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
     chmod +x mkcert-v*-linux-amd64
     sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
@@ -90,6 +90,14 @@ else
     fish -c "source ~/.config/envman/PATH.env"
 fi
 
+#helm
+if test -f "/usr/bin/helm"; then
+    echo "helm is already installed"
+else
+    curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    helm plugin install https://github.com/databus23/helm-diff
+fi
+
 #tabby
 if test -f "/usr/bin/tabby"; then
     echo "tabby is already installed"
@@ -104,6 +112,9 @@ if test -f "/usr/bin/nvim"; then
     echo "neovim is already installed"
 else
     sudo dnf -y install neovim
+    sudo dnf -y install ripgrep
+    sudo yum -y install gcc-c++
+
 fi
 
 #go
@@ -127,20 +138,13 @@ else
 fi
 
 #gcloud
-if test -e "/usr/bin/gcloud"; then
+if test -e "/usr/local/google-cloud-sdk"; then
     echo "gcloud is already installed"
 else
-    sudo tee -a /etc/yum.repos.d/google-cloud-sdk.repo <<EOM
-[google-cloud-cli]
-name=Google Cloud CLI
-baseurl=https://packages.cloud.google.com/yum/repos/cloud-sdk-el8-x86_64
-enabled=1
-gpgcheck=1
-repo_gpgcheck=0
-gpgkey=https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-EOM
-    sudo dnf -y install libxcrypt-compat.x86_64
-    sudo dnf -y install google-cloud-cli
+    curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-412.0.0-linux-x86_64.tar.gz
+    tar -xf google-cloud-cli-412.0.0-linux-x86_64.tar.gz
+    mv google-cloud-sdk /usr/local/
+    /usr/local/google-cloud-sdk/install.sh
 fi
 
 #sops
@@ -200,4 +204,11 @@ if ls $flatpakDir | grep -q "spotify"; then
     echo "spotify is already installed"
 else
     sudo flatpak install flathub com.spotify.Client
+fi
+
+#fedora-view
+if gsettings get org.gnome.desktop.wm.preferences button-layout | grep -q "appmenu"; then
+    echo "fedora-view is already installed"
+else
+    gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
 fi
