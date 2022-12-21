@@ -1,6 +1,6 @@
 #!/bin/bash
-read -p "Enter vhost name: " vhostName
-read -p "Enter queue name: " queueName
+read -p "Enter vhost name: " vhost
+read -p "Enter queue name: " queue
 
 containerName=predictions-rabbitmq
 
@@ -36,12 +36,15 @@ if [ $(eval $isRunning) -eq 0 ] || $status; then
 	done
 fi
 
+admin="rabbitmqadmin -u guest -p guest"
+
 script="
 	#!/bin/bash
-	vhostName=$vhostName 
-	queueName=$queueName 
-	rabbitmqctl add_vhost $vhostName 
-	rabbitmqctl set_permissions -p $vhostName guest \".*\" \".*\" \".*\"
-	rabbitmqadmin -u guest -p guest -V $vhostName declare queue name=$queueName
+	vhost=$vhost
+	queue=$queue
+	rabbitmqctl add_vhost $vhost
+	rabbitmqctl set_permissions -p $vhost guest \".*\" \".*\" \".*\"
+	$admin -V $vhost declare queue name=$queue
+  $admin -V $vhost declare binding source="amq.topic" destination=$queue routing_key=*
 "
 docker exec $containerName bash -c "echo -e $script"
