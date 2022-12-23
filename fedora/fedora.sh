@@ -5,8 +5,6 @@ slackVersion=4.29.149
 sopsVersion=3.7.3
 goVersion=1.19.4
 
-installUtils=true
-
 #dnf
 if cat /etc/dnf/dnf.conf | grep -q "defaultyes=True"; then
     echo "defaultyes is already enabled"
@@ -22,7 +20,7 @@ else
     sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
 
-if test -f /urs/local/bin/mkcer; then
+if test -f "/urs/local/bin/mkcert"; then
     curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
     chmod +x mkcert-v*-linux-amd64
     sudo cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
