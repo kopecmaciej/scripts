@@ -5,6 +5,8 @@ slackVersion=4.29.149
 sopsVersion=3.7.3
 goVersion=1.19.4
 
+sudo dnf upgrade
+
 #dnf
 if cat /etc/dnf/dnf.conf | grep -q "defaultyes=True"; then
     echo "defaultyes is already enabled"
@@ -120,9 +122,10 @@ if test -e "/usr/local/go/bin"; then
     echo "go is already installed"
 else
     wget https://go.dev/dl/go$goVersion.linux-amd64.tar.gz
-    rm -rf /usr/local/go && tar -C /usr/local -xzf go$goVersion.linux-amd64.tar.gz
+    sudo rm -rf /usr/local/go && tar -C /usr/local -xzf go$goVersion.linux-amd64.tar.gz
     fish -c "fish_add_path /usr/local/go/bin"
     set -xU GOPATH $HOME/go
+    rm go$goVersion.linux-amd64.tar.gz
 fi
 
 #aws
@@ -136,13 +139,14 @@ else
 fi
 
 #gcloud
-if test -e "/usr/local/google-cloud-sdk"; then
+if test -e "~/.local/bin/google-cloud-sdk"; then
     echo "gcloud is already installed"
 else
     curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-412.0.0-linux-x86_64.tar.gz
     tar -xf google-cloud-cli-412.0.0-linux-x86_64.tar.gz
-    mv google-cloud-sdk /usr/local/
-    /usr/local/google-cloud-sdk/install.sh
+    mv google-cloud-sdk ~/.local/bin/
+    ~/.local/bin/google-cloud-sdk/install.sh
+    rm google-cloud-cli-412.0.0-linux-x86_64.tar.gz
 fi
 
 #sops
@@ -152,6 +156,13 @@ else
     wget https://github.com/mozilla/sops/releases/download/v$sopsVersion/sops-$sopsVersion-1.x86_64.rpm
     sudo rpm -i sops-$sopsVersion-1.x86_64.rpm
     rm sops-$sopsVersion-1.x86_64.rpm
+fi
+
+#parallel
+if test f "usr/bin/parallel"; then
+    echo "parallel is already installed"
+else
+    sudo dnf -y install parallel
 fi
 
 ### Browsers
