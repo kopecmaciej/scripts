@@ -114,7 +114,7 @@ else
     sudo dnf -y install neovim
     sudo dnf -y install ripgrep
     sudo yum -y install gcc-c++
-
+    sudo dnf -y install fzf
 fi
 
 #go
@@ -187,6 +187,14 @@ else
     rm slack-$slackVersion-0.1.el8.x86_64.rpm
 fi
 
+#utils
+#htop
+if test -f "/usr/bin/htop"; then
+    echo "htop is already installed"
+else
+    sudo dnf -y install htop
+fi
+
 #droid sans mono nerd font
 if test -e "/usr/share/fonts/droid-sans-mono-nerd-font"; then
     echo "droid sans mono nerd font is already installed"
@@ -199,21 +207,21 @@ else
     rm -rf DroidSansMono.zip DroidSansMono
 fi
 
-flatpakDir=/var/lib/flatpak/exports/share/applications
+#flatpakDir=/var/lib/flatpak/exports/share/applications
 
-#discord
-if ls $flatpakDir | grep -q "discord"; then
-    echo "discord is already installed"
-else
-    flatpak install discord
-fi
+##discord
+#if ls $flatpakDir | grep -q "discord"; then
+#    echo "discord is already installed"
+#else
+#    flatpak install discord
+#fi
 
-#spotify
-if ls $flatpakDir | grep -q "spotify"; then
-    echo "spotify is already installed"
-else
-    sudo flatpak install flathub com.spotify.Client
-fi
+##spotify
+#if ls $flatpakDir | grep -q "spotify"; then
+#    echo "spotify is already installed"
+#else
+#    sudo flatpak install flathub com.spotify.Client
+#fi
 
 #fedora-view
 if gsettings get org.gnome.desktop.wm.preferences button-layout | grep -q "appmenu"; then
